@@ -1,4 +1,5 @@
 export interface Task {
+  board_id: string;
   task_id: string;
   task_name: string;
   task_description: string;

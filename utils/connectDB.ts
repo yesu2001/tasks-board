@@ -1,6 +1,6 @@
-import { NextApiRequest } from "next";
-import { NextResponse } from "next/server";
+import mongoose from "mongoose";
 
-export async function GET(request: NextApiRequest) {
-  return NextResponse.json({ data: "HELLO WELCOME TO THE SEVER" });
-}
+const connectDB = async () =>
+  mongoose.connect(process.env.NEXT_MONGO_URL as string);
+
+export default connectDB;

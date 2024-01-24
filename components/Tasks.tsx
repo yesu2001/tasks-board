@@ -1,14 +1,29 @@
 "use client";
-import React, { useState } from "react";
+import React, { useEffect, useState } from "react";
 import axios from "axios";
 import Task from "./Task";
 import Image from "next/image";
 import addIcon from "../assets/Add_round_duotone.svg";
 import Drawer from "./Drawer";
+import { Task as TaskArray } from "@/utils/types";
+import { usePathname } from "next/navigation";
+import TaskSkeleton from "./TaskSkeleton";
 
-export default function Tasks() {
-  const [tasks, setTasks] = useState(tasksData);
+interface TasksProps {
+  data: TaskArray[]; // Adjust the type within the array if you have a specific data structure
+  boardId: string;
+}
+export default function Tasks({ data, boardId }: TasksProps) {
+  const [tasks, setTasks] = useState<TaskArray[]>([]);
   const [isNew, setIsNew] = useState(false);
+  const [loading, setLoading] = useState(true);
+
+  useEffect(() => {
+    setTimeout(() => {
+      setTasks(data);
+      setLoading(false);
+    }, 2000);
+  }, []);
 
   const handleNewTask = () => setIsNew(!isNew);
 
@@ -16,13 +31,25 @@ export default function Tasks() {
     console.log("delete", id);
   };
 
-  const handleSave = (data: any) => {
+  const handleSave = async (taskdata: any) => {
+    console.log(taskdata);
+    const newTaskData = {
+      ...taskdata,
+      board_id: boardId,
+    };
+    const response = await axios.post(
+      `http://localhost:3000/api/tasks/${boardId}`,
+      newTaskData
+    );
+    const { data } = await response.data;
     console.log(data);
+    setTasks((prevState: TaskArray[]) => [data, ...prevState]);
   };
 
   return (
     <div className="space-y-3 mt-8 mb-4">
-      {tasks.map((task) => (
+      {loading && tasks.length === 0 && <TaskSkeleton />}
+      {tasks?.map((task: TaskArray) => (
         <Task
           key={task.task_id}
           task={task}
