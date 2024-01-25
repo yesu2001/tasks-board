@@ -1,6 +1,5 @@
 import TaskSchema from "@/model/task";
 import connectDB from "@/utils/connectDB";
-import { NextApiRequest } from "next";
 import { NextRequest, NextResponse } from "next/server";
 
 export async function GET(request: NextRequest, { params }) {
@@ -8,7 +7,7 @@ export async function GET(request: NextRequest, { params }) {
   try {
     await connectDB();
     const taskData = await TaskSchema.find({ board_id: id });
-    if (!taskData) {
+    if (!taskData || taskData.length === 0) {
       for (const data of tasksData) {
         const newData = {
           ...data,
@@ -27,14 +26,18 @@ export async function GET(request: NextRequest, { params }) {
   }
 }
 
-export async function POST(request: NextRequest) {
+export async function DELETE(request: NextRequest, { params }) {
+  const { id } = params;
   try {
-    const body = await request.json();
-    console.log("get the body", body);
     await connectDB();
-    const taskData = new TaskSchema(body);
-    const newTaskData = await taskData.save();
-    return NextResponse.json({ data: newTaskData });
+    const deletedData = await TaskSchema.findByIdAndDelete(
+      {
+        _id: id,
+      },
+      { new: true }
+    );
+    console.log(deletedData);
+    return NextResponse.json({ data: deletedData });
   } catch (error) {
     return NextResponse.json({ error: error });
   }

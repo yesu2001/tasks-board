@@ -8,15 +8,21 @@ import Drawer from "./Drawer";
 import { Task as TaskArray } from "@/utils/types";
 import { usePathname } from "next/navigation";
 import TaskSkeleton from "./TaskSkeleton";
+import {
+  deleteTaskByIDInDB,
+  handleEditTaskInDB,
+  saveNewDataInDB,
+} from "@/utils/dbHelpers";
 
 interface TasksProps {
-  data: TaskArray[]; // Adjust the type within the array if you have a specific data structure
+  data: TaskArray[];
   boardId: string;
 }
 export default function Tasks({ data, boardId }: TasksProps) {
   const [tasks, setTasks] = useState<TaskArray[]>([]);
-  const [isNew, setIsNew] = useState(false);
+  const [openDrawer, setOpenDrawer] = useState(false);
   const [loading, setLoading] = useState(true);
+  const [isEdit, setIsEdit] = useState(false);
 
   useEffect(() => {
     setTimeout(() => {
@@ -25,25 +31,37 @@ export default function Tasks({ data, boardId }: TasksProps) {
     }, 2000);
   }, []);
 
-  const handleNewTask = () => setIsNew(!isNew);
+  const handleNewTask = () => {
+    setOpenDrawer(true);
+    setIsEdit(false);
+  };
 
-  const handleDelete = (id: String) => {
-    console.log("delete", id);
+  const handleDelete = async (taskData: any) => {
+    const data = await deleteTaskByIDInDB(taskData);
+    const updatedTasks = tasks.filter((task) => task._id !== data._id);
+    setOpenDrawer(false);
+    setTasks(updatedTasks);
   };
 
   const handleSave = async (taskdata: any) => {
-    console.log(taskdata);
-    const newTaskData = {
-      ...taskdata,
-      board_id: boardId,
-    };
-    const response = await axios.post(
-      `http://localhost:3000/api/tasks/${boardId}`,
-      newTaskData
-    );
-    const { data } = await response.data;
-    console.log(data);
-    setTasks((prevState: TaskArray[]) => [data, ...prevState]);
+    if (isEdit) {
+      const editedTask = {
+        ...taskdata,
+        board_id: boardId,
+      };
+      const data = await handleEditTaskInDB(editedTask);
+      const updatedTasks = tasks.map((item) =>
+        item?._id === data._id ? data : item
+      );
+      setTasks(updatedTasks);
+    } else {
+      const newTaskData = {
+        ...taskdata,
+        board_id: boardId,
+      };
+      const data = await saveNewDataInDB(newTaskData);
+      setTasks((prevState) => [data, ...prevState]);
+    }
   };
 
   return (
@@ -55,6 +73,8 @@ export default function Tasks({ data, boardId }: TasksProps) {
           task={task}
           onDelete={handleDelete}
           onSave={handleSave}
+          isEdit={isEdit}
+          setIsEdit={setIsEdit}
         />
       ))}
       <div
@@ -68,45 +88,15 @@ export default function Tasks({ data, boardId }: TasksProps) {
           <p className="font-semibold">Add new task</p>
         </div>
       </div>
-      {isNew && (
+      {openDrawer && (
         <Drawer
-          isOpen={isNew}
-          onClose={() => setIsNew(false)}
+          isOpen={openDrawer}
+          onClose={() => setOpenDrawer(false)}
           onDelete={handleDelete}
           onSave={handleSave}
+          isEdit={isEdit}
         />
       )}
     </div>
   );
 }
-
-const tasksData = [
-  {
-    task_id: "2t347tgf73t73t5",
-    task_name: "Task in Progress",
-    task_description: "",
-    icon: "⏰",
-    status: "In Progress",
-  },
-  {
-    task_id: "fw78t874trg38",
-    task_name: "Task Completed",
-    task_description: "",
-    icon: "🤖",
-    status: "Completed",
-  },
-  {
-    task_id: "hiuher8w38dii",
-    task_name: "Tasks Won't Do",
-    task_description: "",
-    icon: "☕",
-    status: "Won't do",
-  },
-  {
-    task_id: "inw94756wy9h9h",
-    task_name: "Task To Do",
-    task_description: "Work on dev challenges , learn typescript",
-    icon: "📚",
-    status: "",
-  },
-];

@@ -6,20 +6,28 @@ import CompleteStatus from "../assets/Done_round_duotone.svg";
 import Dontstatus from "../assets/close_ring_duotone.svg";
 import Drawer from "./Drawer";
 
-const Task: React.FC<TaskProps> = ({ task, onDelete, onSave }) => {
+const Task: React.FC<TaskProps> = ({
+  task,
+  onDelete,
+  onSave,
+  isEdit,
+  setIsEdit,
+}) => {
   const [open, setOpen] = useState(false);
 
-  const handleOpen = () => setOpen(true);
-  const handleClose = () => setOpen(false);
-
-  const renderBgColor = (): String => {
-    return "#F7D4D3";
+  const handleOpen = () => {
+    setOpen(true);
+    setIsEdit(true);
+  };
+  const handleClose = () => {
+    setOpen(false);
+    setIsEdit(false);
   };
 
   return (
     <>
       <div
-        className={`cursor-pointer max-w-xl flex gap-4 items-center p-3 ${
+        className={`w-[100%] md:w-[500px]  cursor-pointer max-w-xl flex gap-4 items-center p-3 ${
           task.status === "" && "bg-[#E3E8EF]"
         } ${task.status === "Won't do" && "bg-[#F7D4D3]"} ${
           task.status === "In Progress" && "bg-[#F5D565]"
@@ -77,6 +85,7 @@ const Task: React.FC<TaskProps> = ({ task, onDelete, onSave }) => {
           data={task}
           onDelete={onDelete}
           onSave={onSave}
+          isEdit={isEdit}
         />
       )}
     </>

@@ -15,6 +15,7 @@ const Drawer: React.FC<DrawerProps> = ({
   data,
   onDelete,
   onSave,
+  isEdit,
 }) => {
   const icons = ["🧑🏼‍💻", "💬", "☕", "🏋️", "📚", "⏰"];
   const statuses = [
@@ -52,7 +53,7 @@ const Drawer: React.FC<DrawerProps> = ({
   };
 
   const handleDelete = () => {
-    onDelete(data?.task_id);
+    onDelete(data);
   };
 
   const handleSave = () => {
@@ -60,6 +61,7 @@ const Drawer: React.FC<DrawerProps> = ({
       return;
     }
     const taskData = {
+      ...data,
       task_id: generateUniqueId(),
       task_name: taskName,
       task_description: taskDescription,
@@ -135,6 +137,7 @@ const Drawer: React.FC<DrawerProps> = ({
             <div className="flex flex-wrap items-center gap-2 space-y-1">
               {statuses.map((status, index) => (
                 <div
+                  key={index}
                   className={`flex gap-4 items-center border-2 border-[#E3E8EF] hover:border-[#3662E3] transition-all duration-150 rounded-xl p-1 w-[250px] cursor-pointer`}
                   onClick={() => handleSelectStatus(status)}
                 >
