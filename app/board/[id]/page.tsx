@@ -8,15 +8,15 @@ export default async function page({ params }: any) {
 
   const fetchTasks = async () => {
     const response = await axios.get(`http://localhost:3000/api/tasks/${id}`);
-    const { data } = await response.data;
-    return data;
+    const { data, board } = await response.data;
+    return { data, board };
   };
-  const tasksData = await fetchTasks();
+  const { data, board } = await fetchTasks();
 
   return (
     <div className="mx-auto flex w-full h-full flex-col items-center p-4 md:p-20">
-      <Header />
-      <Tasks data={tasksData} boardId={id} />
+      <Header board={board} />
+      <Tasks data={data} boardId={id} />
     </div>
   );
 }

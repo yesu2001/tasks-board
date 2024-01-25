@@ -1,3 +1,4 @@
+import BoardSchema from "@/model/board";
 import TaskSchema from "@/model/task";
 import connectDB from "@/utils/connectDB";
 import { NextRequest, NextResponse } from "next/server";
@@ -5,22 +6,37 @@ import { NextRequest, NextResponse } from "next/server";
 export async function GET(request: NextRequest, { params }) {
   const { id } = params;
   try {
+    let taskData;
+    let boardInfo;
     await connectDB();
-    const taskData = await TaskSchema.find({ board_id: id });
-    if (!taskData || taskData.length === 0) {
-      for (const data of tasksData) {
-        const newData = {
-          ...data,
-          board_id: id,
-        };
-        const taskData = new TaskSchema(newData);
-        await taskData.save();
-      }
+    const boardData = await BoardSchema.find({ board_id: id });
+    if (!boardData || boardData.length === 0) {
+      const boardData = {
+        board_id: id,
+        board_name: "My task Board",
+        board_description: "Keep Tasks organized",
+      };
+      const newBoardData = new BoardSchema(boardData);
+      await newBoardData.save();
+      boardInfo = await BoardSchema.find({ board_id: id });
+      taskData = await TaskSchema.find({ board_id: id });
+      console.log("taskData", taskData);
+      if (!taskData || taskData.length === 0) {
+        for (const data of tasksData) {
+          const newData = {
+            ...data,
+            board_id: id,
+          };
+          const taskData = new TaskSchema(newData);
+          await taskData.save();
+        }
 
-      const newTaskData = await TaskSchema.find({ board_id: id });
-      return NextResponse.json({ data: newTaskData });
+        taskData = await TaskSchema.find({ board_id: id });
+      }
+      return NextResponse.json({ data: taskData, board: boardInfo[0] });
     }
-    return NextResponse.json({ data: taskData });
+    taskData = await TaskSchema.find({ board_id: id });
+    return NextResponse.json({ data: taskData, board: boardData });
   } catch (error) {
     return NextResponse.json({ error });
   }

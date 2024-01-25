@@ -26,3 +26,13 @@ export async function deleteTaskByIDInDB(taskData: Task) {
   const { data } = await response.data;
   return data;
 }
+
+export async function updateBoardByIdInDB(editedBoard: any) {
+  const response = await axios.put(
+    `${window.location.origin}/api/board/${editedBoard._id}`,
+    editedBoard
+  );
+  const { data } = await response.data;
+  console.log(data);
+  return data;
+}
