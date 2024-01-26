@@ -7,7 +7,6 @@ import editIcon from "../assets/Edit_duotone.svg";
 import { updateBoardByIdInDB } from "@/utils/dbHelpers";
 
 export default function Header({ board }: any) {
-  console.log(board[0]);
   const boardNameRef = useRef<HTMLInputElement>(null);
   const [isEdit, setIsEdit] = useState(false);
   const [headerData, setHeaderData] = useState({
@@ -36,7 +35,6 @@ export default function Header({ board }: any) {
       board_name: headerData.boardName,
       board_description: headerData.boardDescription,
     };
-    console.log(newBoardData);
     const data = await updateBoardByIdInDB(newBoardData);
     setHeaderData((prevState) => ({
       boardName: data?.board_name,

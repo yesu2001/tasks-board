@@ -3,7 +3,10 @@ import TaskSchema from "@/model/task";
 import connectDB from "@/utils/connectDB";
 import { NextRequest, NextResponse } from "next/server";
 
-export async function GET(request: NextRequest, { params }) {
+export async function GET(
+  request: NextRequest,
+  { params }: { params: Record<string, string> }
+) {
   const { id } = params;
   try {
     let taskData;
@@ -18,9 +21,7 @@ export async function GET(request: NextRequest, { params }) {
       };
       const newBoardData = new BoardSchema(boardData);
       await newBoardData.save();
-      boardInfo = await BoardSchema.find({ board_id: id });
       taskData = await TaskSchema.find({ board_id: id });
-      console.log("taskData", taskData);
       if (!taskData || taskData.length === 0) {
         for (const data of tasksData) {
           const newData = {
@@ -33,7 +34,8 @@ export async function GET(request: NextRequest, { params }) {
 
         taskData = await TaskSchema.find({ board_id: id });
       }
-      return NextResponse.json({ data: taskData, board: boardInfo[0] });
+      boardInfo = await BoardSchema.find({ board_id: id });
+      return NextResponse.json({ data: taskData, board: boardInfo });
     }
     taskData = await TaskSchema.find({ board_id: id });
     return NextResponse.json({ data: taskData, board: boardData });
@@ -42,7 +44,10 @@ export async function GET(request: NextRequest, { params }) {
   }
 }
 
-export async function DELETE(request: NextRequest, { params }) {
+export async function DELETE(
+  request: NextRequest,
+  { params }: { params: Record<string, string> }
+) {
   const { id } = params;
   try {
     await connectDB();
@@ -52,7 +57,6 @@ export async function DELETE(request: NextRequest, { params }) {
       },
       { new: true }
     );
-    console.log(deletedData);
     return NextResponse.json({ data: deletedData });
   } catch (error) {
     return NextResponse.json({ error: error });

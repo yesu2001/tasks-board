@@ -18,8 +18,8 @@ export interface TaskProps {
 
 // Drawer props interface
 export interface DrawerProps {
-  isOpen: boolean; // Drawer open/closed state
-  onClose: () => void; // Callback for closing the drawer
+  isOpen: boolean;
+  onClose: () => void;
   data?: Task;
   onDelete: (id: any) => void;
   onSave: (data: any) => void;
@@ -28,5 +28,5 @@ export interface DrawerProps {
 
 // Drawer state interface
 export interface DrawerState {
-  isAnimating: boolean; // Flag for animation in progress
+  isAnimating: boolean;
 }
